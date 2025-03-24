@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertar Hardware</title>
+    <link rel="stylesheet" href="/static/styles_insert_hardware.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Insertar Nuevo Hardware</h1>
+        
+        {% if request.query_params.get("error") == "password_mismatch" %}
+        <p class="error">Las contraseñas no coinciden</p>
+        {% endif %}
+        
+        <form id="hardwareForm" action="/insert" method="post">
+            <label for="id">ID:</label>
+            <input type="number" name="id" required>
+
+            <label for="codeName">CodeName (Formato: 123456-789):</label>
+            <input type="text" name="codeName" id="codeName" required
+                   pattern="^[0-9]{6}-[0-9]{3}$"
+                   title="Formato: 6 dígitos, guion y 3 dígitos (Ej: 123456-789)">
+            <p id="codeNameError" class="error" style="display:none; color:red;">
+                El formato debe ser 6 dígitos, un guion y 3 dígitos (Ej: 123456-789).
+            </p>
+
+            <label for="IP">IP:</label>
+            <input type="text" name="IP" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" name="password" required>
+
+            <label for="confirm_password">Confirmar Contraseña:</label>
+            <input type="password" name="confirm_password" required>
+
+            <label for="hardware_type_id">Tipo de Hardware:</label>
+            <select name="hardware_type_id" required>
+                {% for type in hardware_types %}
+                <option value="{{ type.type_id }}">{{ type.type_name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="localizacion">Localización:</label>
+            <input type="text" name="localizacion" required>
+
+            <button type="submit">Guardar</button>
+        </form>
+
+        <a href="/dashboard"><button class="back">Cancelar</button></a>
+    </div>
+
+    <!-- Formulario para gestionar contraseñas (solo para admin) -->
+    {% if is_admin == "1" %}
+    <div class="container">
+        <h2>Administrar Contraseñas de Hardware</h2>
+        <form id="managePasswordsForm" action="/manage_passwords" method="post">
+            <label for="hardware_id">Seleccionar Hardware:</label>
+            <select name="hardware_id" required>
+                {% for device in hardware %}
+                <option value="{{ device.id }}">{{ device.codeName }} - {{ device.IP }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="new_password">Nueva Contraseña:</label>
+            <input type="password" name="new_password" required>
+
+            <label for="confirm_new_password">Confirmar Nueva Contraseña:</label>
+            <input type="password" name="confirm_new_password" required>
+
+            <button type="submit">Actualizar Contraseña</button>
+        </form>
+
+        <br><br>
+
+        <form id="deletePasswordForm" action="/delete_password" method="post">
+            <label for="delete_hardware_id">Seleccionar Hardware para Eliminar Contraseña:</label>
+            <select name="delete_hardware_id" required>
+                {% for device in hardware %}
+                <option value="{{ device.id }}">{{ device.codeName }} - {{ device.IP }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="eliminarBtn">Eliminar Contraseña</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <script>
+        document.getElementById("hardwareForm").addEventListener("submit", function (event) {
+            let codeNameInput = document.getElementById("codeName");
+            let codeNameError = document.getElementById("codeNameError");
+            let pattern = /^[0-9]{6}-[0-9]{3}$/;
+
+            if (!pattern.test(codeNameInput.value)) {
+                codeNameError.style.display = "block";
+                event.preventDefault(); // Evita que el formulario se envíe
+            } else {
+                codeNameError.style.display = "none";
+            }
+        });
+
+        document.getElementById("codeName").addEventListener("input", function () {
+            let pattern = /^[0-9]{6}-[0-9]{3}$/;
+            let errorMsg = document.getElementById("codeNameError");
+
+            if (!pattern.test(this.value)) {
+                errorMsg.style.display = "block";
+            } else {
+                errorMsg.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

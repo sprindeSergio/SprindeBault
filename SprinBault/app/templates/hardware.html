@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware</title>
+    <link rel="stylesheet" href="/static/styles_hardware.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Hardware</h1>
+
+        <div class="filter-container">
+            <label for="columnFilter">Filtrar por columna:</label>
+            <select id="columnFilter" onchange="filterColumns()">
+                <option value="all">Mostrar todas</option>
+                <option value="id">ID</option>
+                <option value="codeName">CodeName</option>
+                <option value="ip">IP</option>
+                <option value="localizacion">Localización</option>
+                <option value="hardware_type_id">Tipo de Hardware</option>
+            </select>
+
+            <label for="idFilter">Filtrar por ID:</label>
+            <input type="text" id="idFilter" onkeyup="filterByID()" placeholder="Escribe un ID">
+        </div>
+
+        <div class="center">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-column="id">ID</th>
+                        <th data-column="codeName">CodeName</th>
+                        <th data-column="ip">IP</th>
+                        <th data-column="localizacion">Localización</th>
+                        <th data-column="hardware_type_id">Tipo de Hardware</th>
+                        <th>Acción</th> <!-- Columna para los botones -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hw in hardware %}
+                    <tr>
+                        <td>{{ hw.id }}</td>
+                        <td>{{ hw.codeName }}</td>
+                        <td>{{ hw.IP }}</td>
+                        <td>{{ hw.Localizacion }}</td>
+                        <td>{{ hw.Hardware_type_Id }}</td>
+                        <td>
+                            <button class="action-button" onclick="openModal()">Mostrar Contraseña</button> <!-- Botón de acción -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="/dashboard"><button>Volver</button></a>
+    </div>
+
+    <!-- Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Introduce Contraseña Maestra</h2>
+            <label for="password">Contraseña Maestra:</label>
+            <input type="text" id="password" name="password">
+            <button onclick="sendPassword()">Enviar</button>
+        </div>
+    </div>
+
+    <script src="/static/filter.js"></script>
+    <script>
+        // Función para abrir el modal
+        function openModal() {
+            document.getElementById("passwordModal").style.display = "block";
+        }
+
+        // Función para cerrar el modal
+        function closeModal() {
+            document.getElementById("passwordModal").style.display = "none";
+        }
+
+        // Función para enviar la contraseña
+        function sendPassword() {
+            alert('Contraseña enviada');
+            closeModal();  // Cerrar el modal después de enviar
+        }
+
+        // Cerrar el modal si el usuario hace clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("passwordModal")) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
