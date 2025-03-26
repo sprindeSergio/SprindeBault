@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware</title>
+    <link rel="stylesheet" href="/static/styles_hardware.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Hardware</h1>
+
+        <div class="filter-container">
+            <label for="columnFilter">Filtrar por columna:</label>
+            <select id="columnFilter" onchange="filterColumns()">
+                <option value="all">Mostrar todas</option>
+                <option value="id">ID</option>
+                <option value="codeName">CodeName</option>
+                <option value="ip">IP</option>
+                <option value="localizacion">Localización</option>
+                <option value="hardware_type_id">Tipo de Hardware</option>
+            </select>
+
+            <label for="idFilter">Filtrar por ID:</label>
+            <input type="text" id="idFilter" onkeyup="filterByID()" placeholder="Escribe un ID">
+        </div>
+
+        <div class="center">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-column="id">ID</th>
+                        <th data-column="codeName">CodeName</th>
+                        <th data-column="ip">IP</th>
+                        <th data-column="localizacion">Localización</th>
+                        <th data-column="hardware_type_id">Tipo de Hardware</th>
+                        <th>Acción</th> <!-- Columna para los botones -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hw in hardware %}
+                    <tr>
+                        <td>{{ hw.id }}</td>
+                        <td>{{ hw.codeName }}</td>
+                        <td>{{ hw.IP }}</td>
+                        <td>{{ hw.Localizacion }}</td>
+                        <td>{{ hw.Hardware_type_Id }}</td>
+                        <td>
+                            <button class="action-button" onclick="openModal('{{ hw.id }}')">Mostrar Contraseña</button>
+                        </td>                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="/dashboard"><button>Volver</button></a>
+    </div>
+
+    <!-- Contenedor para mostrar la contraseña -->
+    <div id="hardwarePasswordContainer" style="display: none;">
+        <h2>Contraseña de Hardware:</h2>
+        <p id="hardwarePassword"></p> <!-- Aquí se mostrará la contraseña -->
+    </div>
+
+    <!-- Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()"></span>
+            <h2>Mostrar Contraseña</h2>
+            <label for="masterPassword">Contraseña Maestra:</label>
+            <input type="password" id="masterPassword" name="masterPassword" placeholder="Ingresa la contraseña maestra">
+            <button onclick="sendPassword()">Enviar</button>
+        </div>
+    </div>
+
+    <!-- Contenedor para mostrar la contraseña del hardware -->
+    <div id="hardwarePasswordDisplay" style="margin-top: 20px; font-size: 18px; color: #0056b3;"></div>
+
+    <script src="/static/filter.js"></script>
+    <script>
+        // Variable global para almacenar el ID del hardware seleccionado
+        let selectedHardwareId = null;
+
+        // Función para abrir el modal y guardar el ID del hardware
+        function openModal(hardwareId) {
+            selectedHardwareId = Number(hardwareId); // Convertir a número
+            document.getElementById("passwordModal").style.display = "block";
+        }
+
+
+        // Función para cerrar el modal
+        function closeModal() {
+            document.getElementById("passwordModal").style.display = "none";
+        }
+    
+        // Función para enviar la contraseña maestra
+        async function sendPassword() {
+            const password = document.getElementById('masterPassword').value;
+
+            if (!selectedHardwareId) {
+                alert("Error: No se seleccionó ningún hardware.");
+                return;
+            }
+
+            // Enviar la contraseña maestra y el ID del hardware al backend
+            const response = await fetch('/verify-master-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    password: password,  // La contraseña maestra
+                    hardware_id: selectedHardwareId // El ID del hardware
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Mostrar la contraseña del hardware desencriptada
+                const hardwarePassword = data.hardware_password;
+                document.getElementById("masterPassword").value = "";
+                document.getElementById("hardwarePasswordDisplay").textContent = `Contraseña de Hardware: ${hardwarePassword}`;
+                
+                // Cerrar el modal
+                closeModal();
+            } else {
+                alert('Contraseña maestra incorrecta');
+                document.getElementById("masterPassword").value = "";
+            }
+        }
+    
+        // Cerrar el modal si el usuario hace clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("passwordModal")) {
+                closeModal();
+            }
+        }
+    </script>                  
+</body>
+</html>
