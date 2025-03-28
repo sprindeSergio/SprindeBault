@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <!-- Bootstrap CSS desde CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        /* Barra de desplazamiento en la tabla */
+        .table-container {
+            max-height: 400px; /* Altura máxima para la tabla */
+            overflow-y: auto; /* Habilitar el desplazamiento vertical */
+        }
+    </style>
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100 m-0">
+    <div class="container bg-white p-5 rounded shadow" style="max-width: 1200px; width: 100%;">
+        <h1 class="text-center mb-4">Lista de Usuarios</h1>
+
+        <div class="d-flex justify-content-between mb-4">
+            <div class="d-flex gap-3">
+                <label for="columnFilter" class="align-self-center mb-0 fw-bold">Filtrar por columna:</label>
+                <select id="columnFilter" onchange="filterColumns()" class="form-select w-auto">
+                    <option value="all">Mostrar todas</option>
+                    <option value="id">ID</option>
+                    <option value="email">Email</option>
+                    <option value="created_at">Fecha de Creación</option>
+                </select>
+            </div>
+            <div class="d-flex gap-3">
+                <label for="idFilter" class="align-self-center mb-0 fw-bold">Filtrar por ID:</label>
+                <input type="text" id="idFilter" onkeyup="filterByID()" placeholder="Escribe un ID" class="form-control w-auto">
+            </div>
+        </div>
+
+        <div class="table-container table-responsive">
+            <table id="dataTable" class="table table-bordered table-striped text-center">
+                <thead class="table-success">
+                    <tr>
+                        <th data-column="id">ID</th>
+                        <th data-column="email">Email</th>
+                        <th data-column="created_at">Fecha de Creación</th>
+                        <th>Acción</th>  <!-- Nueva columna para las acciones -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at }}</td>
+                        <!-- Mostrar el botón de eliminar para todos los usuarios -->
+                        <td>
+                            <form action="/delete_user/{{ user.id }}" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                                <button type="submit" class="btn btn-danger">Eliminar Usuario</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center mt-4">
+            <!-- Botón de registrar usuario a la derecha -->
+            <a href="/register">
+                <button class="btn btn-primary btn-sm py-2 fs-5">Registrar Usuario</button>
+            </a>
+            <!-- Nuevo botón de gestionar contraseñas -->
+            <a href="/modify_passwords" class="ms-3">
+                <button class="btn btn-primary btn-sm py-2 fs-5">Gestionar Contraseñas</button>
+            </a>
+            <a href="/dashboard" class="ms-3 ">
+                <button class="btn btn-secondary btn-sm py-2 fs-5">Volver</button> <!-- Botón Volver -->
+            </a>
+        </div>        
+    </div>
+
+    <script src="/static/filter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
